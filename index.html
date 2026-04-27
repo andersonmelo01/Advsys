@@ -1,1 +1,1042 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADVSIS – Sistema Jurídico Inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C96B;
+    --gold-pale: #F5E6BB;
+    --dark: #0A0C10;
+    --dark2: #11141C;
+    --dark3: #181D28;
+    --dark4: #1F2535;
+    --text: #E8E4D8;
+    --text-muted: #8A8578;
+    --white: #FAFAF8;
+    --danger: #E05252;
+    --success: #4CAF7A;
+    --radius: 12px;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--dark);
+    color:var(--text);
+    font-family:'Montserrat',sans-serif;
+    overflow-x:hidden;
+    line-height:1.6;
+  }
 
+  body::before{
+    content:'';position:fixed;inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:0;opacity:.4;
+  }
+
+  #progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));width:0%;z-index:9999;transition:width .1s;}
+
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:1000;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 6%;
+    background:rgba(10,12,16,.85);
+    backdrop-filter:blur(18px);
+    border-bottom:1px solid rgba(201,168,76,.12);
+    transition:padding .3s;
+  }
+  nav.scrolled{padding:12px 6%;}
+  .nav-logo{display:flex;align-items:center;gap:10px;}
+  .nav-logo svg{width:36px;height:36px;}
+  .nav-logo span{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--gold);letter-spacing:.08em;}
+  .nav-links{display:flex;gap:32px;}
+  .nav-links a{color:var(--text-muted);text-decoration:none;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;transition:color .3s;}
+  .nav-links a:hover{color:var(--gold);}
+  .nav-cta{
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    color:var(--dark);font-weight:700;border:none;cursor:pointer;
+    padding:10px 24px;border-radius:40px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;
+    transition:transform .2s,box-shadow .2s;
+  }
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.4);}
+
+  #hero{
+    min-height:100vh;display:flex;align-items:center;
+    padding:120px 6% 80px;
+    position:relative;overflow:hidden;
+  }
+  .hero-bg{
+    position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(ellipse 80% 60% at 65% 40%,rgba(201,168,76,.08) 0%,transparent 70%),
+               radial-gradient(ellipse 50% 80% at 90% 20%,rgba(201,168,76,.05) 0%,transparent 60%),
+               linear-gradient(160deg,#0A0C10 0%,#11141C 60%,#0D0F14 100%);
+  }
+  .hero-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+    max-width:1200px;margin:auto;width:100%;
+  }
+  .hero-badge{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);
+    border-radius:40px;padding:6px 16px;font-size:.72rem;letter-spacing:.15em;
+    text-transform:uppercase;color:var(--gold);margin-bottom:24px;
+  }
+  .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.5);}}
+  h1{
+    font-family:'Playfair Display',serif;
+    font-size:clamp(2.4rem,5vw,4rem);
+    font-weight:900;line-height:1.1;
+    color:var(--white);margin-bottom:24px;
+  }
+  h1 em{font-style:normal;color:var(--gold);}
+  .hero-sub{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.2rem;font-weight:300;
+    color:var(--text-muted);line-height:1.8;margin-bottom:40px;
+  }
+  .hero-actions{display:flex;gap:16px;flex-wrap:wrap;}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    color:var(--dark);font-weight:700;border:none;cursor:pointer;
+    padding:16px 36px;border-radius:40px;font-size:.85rem;letter-spacing:.1em;
+    text-transform:uppercase;transition:all .3s;text-decoration:none;display:inline-block;
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(201,168,76,.45);}
+  .btn-ghost{
+    background:transparent;color:var(--gold);
+    border:1px solid rgba(201,168,76,.4);cursor:pointer;
+    padding:16px 36px;border-radius:40px;font-size:.85rem;letter-spacing:.1em;
+    text-transform:uppercase;transition:all .3s;text-decoration:none;display:inline-block;
+  }
+  .btn-ghost:hover{background:rgba(201,168,76,.1);border-color:var(--gold);}
+  .hero-stats{
+    display:flex;gap:32px;margin-top:48px;padding-top:32px;
+    border-top:1px solid rgba(201,168,76,.15);
+  }
+  .stat{text-align:center;}
+  .stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);}
+  .stat-label{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-top:4px;}
+
+  .hero-visual{position:relative;}
+  .dashboard-mockup{
+    background:var(--dark3);border:1px solid rgba(201,168,76,.2);
+    border-radius:16px;overflow:hidden;
+    box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.1),inset 0 1px 0 rgba(255,255,255,.05);
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+  .mock-titlebar{
+    background:var(--dark2);padding:12px 16px;
+    display:flex;align-items:center;gap:8px;
+    border-bottom:1px solid rgba(201,168,76,.1);
+  }
+  .mock-dot{width:10px;height:10px;border-radius:50%;}
+  .mock-title{margin-left:12px;font-size:.75rem;color:var(--text-muted);letter-spacing:.06em;}
+  .mock-body{padding:20px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .mock-card{
+    background:var(--dark2);border:1px solid rgba(201,168,76,.12);
+    border-radius:8px;padding:14px;
+  }
+  .mock-card-label{font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+  .mock-card-value{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--gold);font-weight:700;}
+  .mock-card-sub{font-size:.6rem;color:var(--success);margin-top:3px;}
+  .mock-bar-area{grid-column:1/-1;background:var(--dark2);border:1px solid rgba(201,168,76,.12);border-radius:8px;padding:14px;}
+  .mock-bar-title{font-size:.65rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.1em;}
+  .mock-bars{display:flex;align-items:flex-end;gap:6px;height:60px;}
+  .mock-bar{
+    flex:1;background:linear-gradient(180deg,var(--gold),rgba(201,168,76,.3));
+    border-radius:3px 3px 0 0;
+    animation:growBar 1.5s ease-out forwards;
+    transform-origin:bottom;
+  }
+  @keyframes growBar{from{transform:scaleY(0);}to{transform:scaleY(1);}}
+  .phone-mockup{
+    position:absolute;bottom:-20px;right:-30px;
+    width:160px;
+    background:var(--dark3);border:1px solid rgba(201,168,76,.25);
+    border-radius:20px;overflow:hidden;
+    box-shadow:0 20px 40px rgba(0,0,0,.5);
+    animation:float 6s ease-in-out infinite;animation-delay:1s;
+  }
+  .phone-notch{
+    background:var(--dark2);height:28px;display:flex;align-items:center;justify-content:center;
+    font-size:.55rem;color:var(--text-muted);letter-spacing:.08em;
+    border-bottom:1px solid rgba(201,168,76,.1);
+  }
+  .phone-body{padding:10px;}
+  .phone-greeting{font-size:.6rem;color:var(--gold);margin-bottom:6px;font-weight:600;}
+  .phone-row{
+    display:flex;justify-content:space-between;align-items:center;
+    background:var(--dark2);border-radius:6px;padding:6px 8px;margin-bottom:4px;
+  }
+  .phone-row-label{font-size:.55rem;color:var(--text-muted);}
+  .phone-row-value{font-size:.58rem;color:var(--gold);font-weight:600;}
+
+  section{padding:100px 6%;position:relative;}
+  .section-tag{
+    display:inline-block;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--gold);border:1px solid rgba(201,168,76,.3);
+    padding:5px 14px;border-radius:40px;margin-bottom:16px;
+  }
+  h2{
+    font-family:'Playfair Display',serif;
+    font-size:clamp(1.8rem,4vw,3rem);font-weight:900;
+    color:var(--white);line-height:1.2;margin-bottom:16px;
+  }
+  h2 em{font-style:normal;color:var(--gold);}
+  .section-sub{
+    font-family:'Cormorant Garamond',serif;
+    font-size:1.15rem;color:var(--text-muted);max-width:560px;line-height:1.8;
+  }
+  .divider{width:60px;height:2px;background:linear-gradient(90deg,var(--gold),transparent);margin:20px 0;}
+
+  #features{background:var(--dark2);}
+  .features-header{text-align:center;max-width:700px;margin:0 auto 64px;}
+  .features-header .section-sub{margin:auto;}
+  .features-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:24px;max-width:1200px;margin:auto;
+  }
+  .feat-card{
+    background:var(--dark3);border:1px solid rgba(201,168,76,.1);
+    border-radius:var(--radius);padding:32px 24px;
+    transition:transform .3s,border-color .3s,box-shadow .3s;
+    position:relative;overflow:hidden;
+  }
+  .feat-card::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse at top left,rgba(201,168,76,.06),transparent 60%);
+    opacity:0;transition:opacity .3s;
+  }
+  .feat-card:hover{transform:translateY(-6px);border-color:rgba(201,168,76,.35);box-shadow:0 20px 40px rgba(0,0,0,.3);}
+  .feat-card:hover::before{opacity:1;}
+  .feat-icon{
+    width:52px;height:52px;border-radius:12px;
+    background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;margin-bottom:20px;
+  }
+  .feat-title{font-weight:700;font-size:.95rem;color:var(--white);margin-bottom:10px;}
+  .feat-desc{font-size:.8rem;color:var(--text-muted);line-height:1.7;}
+
+  #comparison{
+    background:linear-gradient(160deg,var(--dark) 0%,var(--dark3) 100%);
+  }
+  .comparison-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:32px;
+    max-width:860px;margin:48px auto 0;
+  }
+  .comp-col{
+    background:var(--dark2);border-radius:var(--radius);overflow:hidden;
+  }
+  .comp-header{
+    padding:20px 28px;font-weight:700;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;
+  }
+  .comp-header.bad{background:rgba(224,82,82,.12);color:var(--danger);border-bottom:1px solid rgba(224,82,82,.2);}
+  .comp-header.good{background:rgba(76,175,122,.12);color:var(--success);border-bottom:1px solid rgba(76,175,122,.2);}
+  .comp-item{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 28px;border-bottom:1px solid rgba(255,255,255,.04);
+    font-size:.82rem;color:var(--text-muted);transition:background .2s;
+  }
+  .comp-item:hover{background:rgba(255,255,255,.02);}
+  .comp-item:last-child{border-bottom:none;}
+  .comp-icon{width:18px;height:18px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;}
+  .comp-icon.x{background:rgba(224,82,82,.15);color:var(--danger);}
+  .comp-icon.ok{background:rgba(76,175,122,.15);color:var(--success);}
+  .vs-badge{
+    position:absolute;left:50%;transform:translateX(-50%);
+    top:50%;margin-top:-8px;
+    background:var(--gold);color:var(--dark);
+    font-weight:900;font-size:.75rem;letter-spacing:.1em;
+    width:42px;height:42px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 4px var(--dark3);z-index:2;
+  }
+  .comparison-wrapper{position:relative;}
+
+  #plans{background:var(--dark2);}
+  .plans-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:28px;max-width:960px;margin:48px auto 0;
+  }
+  .plan-card{
+    background:var(--dark3);border:1px solid rgba(201,168,76,.15);
+    border-radius:var(--radius);padding:36px 30px;
+    transition:transform .3s,box-shadow .3s;
+    position:relative;
+  }
+  .plan-card.featured{
+    border-color:var(--gold);
+    background:linear-gradient(135deg,var(--dark3),rgba(201,168,76,.06));
+    transform:scale(1.04);
+  }
+  .plan-card.featured::before{
+    content:'MAIS POPULAR';
+    position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    background:linear-gradient(90deg,var(--gold),var(--gold-light));
+    color:var(--dark);font-size:.6rem;font-weight:700;letter-spacing:.15em;
+    padding:5px 16px;border-radius:40px;white-space:nowrap;
+  }
+  .plan-card:hover:not(.featured){transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.3);}
+  .plan-name{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+  .plan-price{
+    font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;
+    color:var(--white);margin-bottom:4px;
+  }
+  .plan-price span{font-size:1rem;color:var(--text-muted);}
+  .plan-period{font-size:.75rem;color:var(--text-muted);margin-bottom:28px;}
+  .plan-features{list-style:none;margin-bottom:32px;}
+  .plan-features li{
+    display:flex;align-items:center;gap:10px;
+    font-size:.8rem;color:var(--text-muted);
+    padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  }
+  .plan-features li::before{content:'✦';color:var(--gold);font-size:.6rem;}
+
+  #cta-band{
+    padding:80px 6%;
+    background:linear-gradient(135deg,rgba(201,168,76,.12) 0%,rgba(201,168,76,.04) 100%);
+    border-top:1px solid rgba(201,168,76,.15);
+    border-bottom:1px solid rgba(201,168,76,.15);
+    text-align:center;
+  }
+  #cta-band h2{margin-bottom:12px;}
+  #cta-band .section-sub{margin:0 auto 40px;}
+  .cta-contacts{
+    display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-top:40px;
+  }
+  .cta-contact-item{
+    display:flex;align-items:center;gap:10px;
+    background:var(--dark2);border:1px solid rgba(201,168,76,.15);
+    border-radius:40px;padding:12px 22px;font-size:.82rem;color:var(--text-muted);
+    text-decoration:none;transition:all .3s;
+  }
+  .cta-contact-item:hover{border-color:var(--gold);color:var(--gold);}
+  .cta-contact-icon{font-size:1rem;}
+
+  footer{
+    background:var(--dark);border-top:1px solid rgba(201,168,76,.1);
+    padding:40px 6%;text-align:center;
+  }
+  .footer-logo{
+    font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;
+    color:var(--gold);letter-spacing:.1em;margin-bottom:8px;
+  }
+  .footer-tagline{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);}
+  .footer-links{display:flex;justify-content:center;gap:24px;margin-top:24px;}
+  .footer-links a{font-size:.72rem;color:var(--text-muted);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;transition:color .3s;}
+  .footer-links a:hover{color:var(--gold);}
+  .footer-copy{font-size:.7rem;color:rgba(138,133,120,.4);margin-top:20px;}
+
+  #chat-bubble{
+    position:fixed;bottom:32px;right:32px;z-index:9000;
+  }
+  #chat-toggle{
+    width:60px;height:60px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 8px 32px rgba(201,168,76,.5);
+    transition:transform .3s,box-shadow .3s;font-size:1.4rem;
+    position:relative;
+  }
+  #chat-toggle:hover{transform:scale(1.08);box-shadow:0 12px 40px rgba(201,168,76,.6);}
+  #chat-toggle .badge{
+    position:absolute;top:-4px;right:-4px;
+    background:var(--danger);color:#fff;
+    width:18px;height:18px;border-radius:50%;
+    font-size:.6rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    border:2px solid var(--dark);
+  }
+  #chat-window{
+    position:absolute;bottom:76px;right:0;
+    width:360px;max-height:560px;
+    background:var(--dark2);
+    border:1px solid rgba(201,168,76,.25);
+    border-radius:20px;
+    box-shadow:0 30px 80px rgba(0,0,0,.7);
+    display:flex;flex-direction:column;
+    opacity:0;pointer-events:none;transform:translateY(16px) scale(.97);
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    overflow:hidden;
+  }
+  #chat-window.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1);}
+  .chat-header{
+    padding:16px 20px;
+    background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));
+    border-bottom:1px solid rgba(201,168,76,.15);
+    display:flex;align-items:center;gap:12px;
+  }
+  .chat-avatar{
+    width:40px;height:40px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.1rem;flex-shrink:0;
+  }
+  .chat-header-info{flex:1;}
+  .chat-name{font-weight:700;font-size:.9rem;color:var(--white);}
+  .chat-status{font-size:.68rem;color:var(--success);display:flex;align-items:center;gap:5px;}
+  .chat-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;}
+  #chat-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.2rem;transition:color .2s;}
+  #chat-close:hover{color:var(--white);}
+
+  #chat-messages{
+    flex:1;overflow-y:auto;padding:20px;
+    display:flex;flex-direction:column;gap:14px;
+    max-height:340px;
+  }
+  #chat-messages::-webkit-scrollbar{width:4px;}
+  #chat-messages::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:2px;}
+
+  .msg{max-width:80%;display:flex;flex-direction:column;gap:4px;animation:msgIn .3s ease-out;}
+  @keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .msg.bot{align-self:flex-start;}
+  .msg.user{align-self:flex-end;}
+  .msg-bubble{
+    padding:10px 14px;border-radius:14px;
+    font-size:.82rem;line-height:1.6;
+  }
+  .msg.bot .msg-bubble{
+    background:var(--dark3);border:1px solid rgba(201,168,76,.12);
+    color:var(--text);border-radius:4px 14px 14px 14px;
+  }
+  .msg.user .msg-bubble{
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    color:var(--dark);font-weight:500;
+    border-radius:14px 14px 4px 14px;
+  }
+  .msg-time{font-size:.6rem;color:var(--text-muted);}
+  .msg.user .msg-time{text-align:right;}
+
+  .typing-indicator{
+    display:flex;align-items:center;gap:5px;
+    padding:10px 14px;background:var(--dark3);
+    border:1px solid rgba(201,168,76,.12);
+    border-radius:4px 14px 14px 14px;
+    width:fit-content;
+  }
+  .typing-dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--gold);opacity:.5;
+    animation:typingDot 1.4s infinite;
+  }
+  .typing-dot:nth-child(2){animation-delay:.2s;}
+  .typing-dot:nth-child(3){animation-delay:.4s;}
+  @keyframes typingDot{0%,80%,100%{transform:scale(1);opacity:.5;}40%{transform:scale(1.3);opacity:1;}}
+
+  .quick-replies{
+    padding:0 20px 12px;
+    display:flex;flex-wrap:wrap;gap:8px;
+  }
+  .quick-reply-btn{
+    background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);
+    color:var(--gold);border-radius:40px;padding:7px 14px;
+    font-size:.72rem;cursor:pointer;transition:all .2s;white-space:nowrap;
+    font-family:inherit;
+  }
+  .quick-reply-btn:hover{background:rgba(201,168,76,.18);border-color:var(--gold);}
+
+  .chat-input-area{
+    padding:12px 16px;
+    border-top:1px solid rgba(201,168,76,.1);
+    display:flex;gap:10px;align-items:center;
+  }
+  #chat-input{
+    flex:1;background:var(--dark3);border:1px solid rgba(201,168,76,.2);
+    border-radius:40px;padding:10px 16px;font-size:.82rem;
+    color:var(--text);font-family:inherit;outline:none;
+    transition:border-color .2s;
+  }
+  #chat-input:focus{border-color:var(--gold);}
+  #chat-input::placeholder{color:var(--text-muted);}
+  #chat-send{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    border:none;cursor:pointer;font-size:.9rem;
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .2s,box-shadow .2s;flex-shrink:0;
+  }
+  #chat-send:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(201,168,76,.4);}
+
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;}
+  .reveal.visible{opacity:1;transform:translateY(0);}
+  .reveal-delay-1{transition-delay:.1s;}
+  .reveal-delay-2{transition-delay:.2s;}
+  .reveal-delay-3{transition-delay:.3s;}
+  .reveal-delay-4{transition-delay:.4s;}
+
+  @media(max-width:860px){
+    .hero-grid{grid-template-columns:1fr;gap:40px;}
+    .nav-links{display:none;}
+    .comparison-grid{grid-template-columns:1fr;gap:16px;}
+    .vs-badge{display:none;}
+    #chat-window{width:calc(100vw - 40px);right:-8px;}
+    .phone-mockup{display:none;}
+  }
+  @media(max-width:560px){
+    section{padding:70px 5%;}
+    .hero-actions{flex-direction:column;}
+    .btn-primary,.btn-ghost{text-align:center;}
+    .plans-grid{grid-template-columns:1fr;}
+    .plan-card.featured{transform:none;}
+  }
+  /* ===== MELHORIAS DE RESPONSIVIDADE ===== */
+
+/* Tipografia mais fluida */
+body {
+  font-size: clamp(14px, 1.5vw, 16px);
+}
+
+.hero-sub,
+.section-sub {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+}
+
+/* Melhor espaçamento geral */
+section {
+  padding: clamp(60px, 8vw, 100px) 6%;
+}
+
+/* Botões mais confortáveis no mobile */
+.btn-primary,
+.btn-ghost {
+  padding: clamp(14px, 2.5vw, 18px) clamp(24px, 5vw, 36px);
+  font-size: clamp(0.8rem, 2vw, 0.9rem);
+}
+
+/* Navbar mais adaptável */
+nav {
+  padding: clamp(12px, 3vw, 18px) 6%;
+}
+
+/* Hero ajustes */
+.hero-actions {
+  gap: clamp(10px, 2vw, 16px);
+}
+
+.hero-stats {
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Cards mais fluidos */
+.feat-card,
+.plan-card {
+  padding: clamp(20px, 4vw, 32px);
+}
+
+/* GRID melhora no mobile */
+@media (max-width: 768px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== CHAT MOBILE MELHORADO ===== */
+@media (max-width: 600px) {
+
+  #chat-bubble {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  #chat-window {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    right: 0;
+    bottom: 0;
+    border-radius: 0;
+  }
+
+  #chat-messages {
+    max-height: none;
+  }
+
+  .chat-input-area {
+    padding: 10px;
+  }
+
+  #chat-input {
+    font-size: 16px; /* evita zoom no iPhone */
+  }
+}
+
+/* Evita overflow em telas pequenas */
+body {
+  overflow-x: hidden;
+}
+
+/* Melhor toque (UX mobile) */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav id="navbar">
+  <div class="nav-logo">
+    <svg viewBox="0 0 36 36" fill="none">
+      <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="#C9A84C" stroke-width="1.5" fill="none"/>
+      <rect x="12" y="10" width="3" height="16" fill="#C9A84C" rx="1"/>
+      <rect x="16.5" y="7" width="3" height="19" fill="#C9A84C" rx="1"/>
+      <rect x="21" y="10" width="3" height="16" fill="#C9A84C" rx="1"/>
+    </svg>
+    <span>ADVSIS</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features">Recursos</a>
+    <a href="#comparison">Comparativo</a>
+    <a href="#plans">Planos</a>
+    <a href="#cta-band">Contato</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('cta-band').scrollIntoView({behavior:'smooth'})">Demonstração Gratuita</button>
+</nav>
+
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid">
+    <div>
+      <div class="hero-badge">Para Advogados e Escritórios</div>
+      <h1>Controle total do seu escritório, <em>sem planilhas</em> e sem dor de cabeça.</h1>
+      <p class="hero-sub">Organize honorários, contratos, prazos e financeiro em um único sistema simples e profissional.</p>
+      <div class="hero-actions">
+        <a href="#cta-band" class="btn-primary">Solicitar Demonstração Gratuita</a>
+        <a href="#features" class="btn-ghost">Ver Recursos</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num">128+</div>
+          <div class="stat-label">Processos Ativos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Segurança JWT</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">0</div>
+          <div class="stat-label">Planilhas</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="dashboard-mockup">
+        <div class="mock-titlebar">
+          <div class="mock-dot" style="background:#E05252;"></div>
+          <div class="mock-dot" style="background:#E0A852;"></div>
+          <div class="mock-dot" style="background:#4CAF7A;"></div>
+          <span class="mock-title">Painel Principal — ADVSIS</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-card">
+            <div class="mock-card-label">Recebimentos do mês</div>
+            <div class="mock-card-value">R$ 24.750</div>
+            <div class="mock-card-sub">↑ 18% vs mês anterior</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-label">A receber</div>
+            <div class="mock-card-value">R$ 15.320</div>
+            <div class="mock-card-sub" style="color:#E0A852;">Em aberto</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-card-label">Processos ativos</div>
+            <div class="mock-card-value">128</div>
+            <div class="mock-card-sub">Acompanhamento</div>
+          </div>
+          <div class="mock-bar-area">
+            <div class="mock-bar-title">Recebimentos – Últimos 6 meses</div>
+            <div class="mock-bars">
+              <div class="mock-bar" style="height:40%;animation-delay:.1s;"></div>
+              <div class="mock-bar" style="height:60%;animation-delay:.2s;"></div>
+              <div class="mock-bar" style="height:50%;animation-delay:.3s;"></div>
+              <div class="mock-bar" style="height:75%;animation-delay:.4s;"></div>
+              <div class="mock-bar" style="height:85%;animation-delay:.5s;"></div>
+              <div class="mock-bar" style="height:100%;animation-delay:.6s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-mockup">
+        <div class="phone-notch">9:41 ▪ ADVSIS</div>
+        <div class="phone-body">
+          <div class="phone-greeting">Olá, Advogado! 👋</div>
+          <div class="phone-row">
+            <span class="phone-row-label">Recebidos</span>
+            <span class="phone-row-value">R$ 24.750</span>
+          </div>
+          <div class="phone-row">
+            <span class="phone-row-label">A receber</span>
+            <span class="phone-row-value">R$ 15.320</span>
+          </div>
+          <div class="phone-row">
+            <span class="phone-row-label">Atrasados</span>
+            <span class="phone-row-value" style="color:var(--danger);">R$ 3.200</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="features-header reveal">
+    <div class="section-tag">Recursos</div>
+    <h2>Solução <em>completa</em> para escritórios que querem crescer</h2>
+    <div class="divider" style="margin:20px auto;"></div>
+    <p class="section-sub">Mais controle, produtividade e resultado todos os dias.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card reveal reveal-delay-1">
+      <div class="feat-icon">⚖️</div>
+      <div class="feat-title">Controle total de honorários</div>
+      <div class="feat-desc">Acompanhe recebimentos, parcelas e pendências em tempo real, sem perder nenhum centavo.</div>
+    </div>
+    <div class="feat-card reveal reveal-delay-2">
+      <div class="feat-icon">💰</div>
+      <div class="feat-title">Gestão financeira completa</div>
+      <div class="feat-desc">Relatórios, fluxo de caixa e desempenho. Visão operacional clara para decisões certeiras.</div>
+    </div>
+    <div class="feat-card reveal reveal-delay-3">
+      <div class="feat-icon">⏰</div>
+      <div class="feat-title">Mais produtividade no dia a dia</div>
+      <div class="feat-desc">Automação de tarefas e lembretes inteligentes para que nenhum prazo seja esquecido.</div>
+    </div>
+    <div class="feat-card reveal reveal-delay-4">
+      <div class="feat-icon">📁</div>
+      <div class="feat-title">Organização de contratos e processos</div>
+      <div class="feat-desc">Documentos, clientes e andamentos centralizados. Tudo ao alcance de um clique.</div>
+    </div>
+    <div class="feat-card reveal reveal-delay-1">
+      <div class="feat-icon">🤖</div>
+      <div class="feat-title">Automação de tarefas e rotinas</div>
+      <div class="feat-desc">Menos retrabalho e mais tempo para o que importa: seus clientes e casos.</div>
+    </div>
+    <div class="feat-card reveal reveal-delay-2">
+      <div class="feat-icon">🔒</div>
+      <div class="feat-title">Segurança de nível bancário</div>
+      <div class="feat-desc">JWT, RBAC, auditoria e validação desde a base. Seus dados protegidos com rigor.</div>
+    </div>
+  </div>
+</section>
+
+<section id="comparison">
+  <div style="text-align:center;max-width:700px;margin:0 auto 0;" class="reveal">
+    <div class="section-tag">Comparativo</div>
+    <h2>O que muda quando você <em>adota o ADVSIS</em></h2>
+    <div class="divider" style="margin:20px auto;"></div>
+  </div>
+  <div class="comparison-wrapper">
+    <div class="comparison-grid reveal">
+      <div class="comp-col">
+        <div class="comp-header bad">✗ &nbsp;Sem o sistema</div>
+        <div class="comp-item"><div class="comp-icon x">✕</div>Planilhas desorganizadas</div>
+        <div class="comp-item"><div class="comp-icon x">✕</div>Risco de erros e retrabalho</div>
+        <div class="comp-item"><div class="comp-icon x">✕</div>Perda de prazos importantes</div>
+        <div class="comp-item"><div class="comp-icon x">✕</div>Falta de controle financeiro</div>
+        <div class="comp-item"><div class="comp-icon x">✕</div>Informações espalhadas</div>
+      </div>
+      <div class="comp-col">
+        <div class="comp-header good">✓ &nbsp;Com o ADVSIS</div>
+        <div class="comp-item"><div class="comp-icon ok">✓</div>Tudo organizado e centralizado</div>
+        <div class="comp-item"><div class="comp-icon ok">✓</div>Mais produtividade e precisão</div>
+        <div class="comp-item"><div class="comp-icon ok">✓</div>Prazos sob controle</div>
+        <div class="comp-item"><div class="comp-icon ok">✓</div>Financeiro detalhado</div>
+        <div class="comp-item"><div class="comp-icon ok">✓</div>Relatórios completos</div>
+      </div>
+    </div>
+    <div class="vs-badge">VS</div>
+  </div>
+</section>
+
+<section id="plans">
+  <div style="text-align:center;" class="reveal">
+    <div class="section-tag">Planos</div>
+    <h2>Planos <em>acessíveis</em> para advogados e escritórios</h2>
+    <div class="divider" style="margin:20px auto;"></div>
+    <p class="section-sub" style="margin:0 auto;">Implantação rápida. Sem burocracia. Pronto para usar.</p>
+  </div>
+  <div class="plans-grid">
+    <div class="plan-card reveal reveal-delay-1">
+      <div class="plan-name">Solo</div>
+      <div class="plan-price">R$ 97<span>/mês</span></div>
+      <div class="plan-period">Para advogados autônomos</div>
+      <ul class="plan-features">
+        <li>Gestão de honorários</li>
+        <li>Controle de prazos</li>
+        <li>Agenda integrada</li>
+        <li>Acesso mobile</li>
+        <li>Suporte especializado</li>
+      </ul>
+      <a href="#cta-band" class="btn-ghost" style="display:block;text-align:center;">Começar Agora</a>
+    </div>
+    <div class="plan-card featured reveal reveal-delay-2">
+      <div class="plan-name">Escritório</div>
+      <div class="plan-price">R$ 247<span>/mês</span></div>
+      <div class="plan-period">Até 5 usuários</div>
+      <ul class="plan-features">
+        <li>Tudo do plano Solo</li>
+        <li>Gestão financeira completa</li>
+        <li>Automação de rotinas</li>
+        <li>Relatórios avançados</li>
+        <li>Multiusuário com RBAC</li>
+        <li>Atualizações constantes</li>
+      </ul>
+      <a href="#cta-band" class="btn-primary" style="display:block;text-align:center;">Assinar Agora</a>
+    </div>
+    <div class="plan-card reveal reveal-delay-3">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">Sob<span> consulta</span></div>
+      <div class="plan-period">Para grandes escritórios</div>
+      <ul class="plan-features">
+        <li>Usuários ilimitados</li>
+        <li>Customização completa</li>
+        <li>Integrações sob medida</li>
+        <li>SLA garantido</li>
+        <li>Onboarding dedicado</li>
+      </ul>
+      <a href="#cta-band" class="btn-ghost" style="display:block;text-align:center;">Falar com Especialista</a>
+    </div>
+  </div>
+</section>
+
+<section id="cta-band" class="reveal">
+  <div class="section-tag">Demonstração</div>
+  <h2>Solicite uma <em>Demonstração Gratuita</em></h2>
+  <div class="divider" style="margin:20px auto;"></div>
+  <p class="section-sub">Descubra como o sistema pode transformar seu escritório. Sem compromisso, sem burocracia.</p>
+  <br>
+  <a href="https://wa.me/5521982846871" target="_blank" class="btn-primary">Falar pelo WhatsApp Agora</a>
+  <div class="cta-contacts">
+    <a class="cta-contact-item" href="https://wa.me/5521982846871" target="_blank"><span class="cta-contact-icon">📱</span>(21) 98284-6871</a>
+    <a class="cta-contact-item" href="https://wa.me/5521982849816" target="_blank"><span class="cta-contact-icon">📱</span>(21) 98284-9816</a>
+    <a class="cta-contact-item" href="mailto:leandro-franco@hotmail.com"><span class="cta-contact-icon">✉️</span>leandro-franco@hotmail.com</a>
+    <a class="cta-contact-item" href="mailto:amssistemas95@gmail.com"><span class="cta-contact-icon">✉️</span>amssistemas95@gmail.com</a>
+    <a class="cta-contact-item" href="https://www.ams.dev.br" target="_blank"><span class="cta-contact-icon">🌐</span>www.ams.dev.br</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">ADVSIS</div>
+  <div class="footer-tagline">Sistema Jurídico Inteligente</div>
+  <div class="footer-links">
+    <a href="#hero">Início</a>
+    <a href="#features">Recursos</a>
+    <a href="#plans">Planos</a>
+    <a href="#cta-band">Contato</a>
+  </div>
+  <div class="footer-copy">© 2024 ADVSIS · AMS Sistemas · Todos os direitos reservados · www.ams.dev.br</div>
+  <div style="margin-top:12px;font-size:.65rem;color:rgba(138,133,120,.3);letter-spacing:.15em;">SEU ESCRITÓRIO MAIS ORGANIZADO, PRODUTIVO E LUCRATIVO.</div>
+</footer>
+
+<div id="chat-bubble">
+  <div id="chat-window">
+    <div class="chat-header">
+      <div class="chat-avatar">⚖️</div>
+      <div class="chat-header-info">
+        <div class="chat-name">Assistente ADVSIS</div>
+        <div class="chat-status">Online agora</div>
+      </div>
+      <button id="chat-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="quick-replies" id="quick-replies"></div>
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" placeholder="Digite sua mensagem..." autocomplete="off">
+      <button id="chat-send">➤</button>
+    </div>
+  </div>
+  <button id="chat-toggle" onclick="toggleChat()">
+    ⚖️
+    <span class="badge" id="chat-badge">1</span>
+  </button>
+</div>
+
+<script>
+window.addEventListener('scroll',()=>{
+  const el=document.getElementById('progress-bar');
+  const pct=(window.scrollY/(document.body.scrollHeight-window.innerHeight))*100;
+  el.style.width=pct+'%';
+});
+
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>60);
+});
+
+const revealEls=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.12});
+revealEls.forEach(el=>observer.observe(el));
+
+let chatOpen=false;
+let chatInitialized=false;
+
+const RESPONSES={
+  default:[
+    "Obrigado pelo contato! 😊 Posso te ajudar com informações sobre o ADVSIS. Qual sua dúvida?",
+    "Entendido! Nossa equipe adoraria mostrar como o ADVSIS pode transformar seu escritório. Gostaria de agendar uma demonstração gratuita?",
+    "Ótima pergunta! O ADVSIS é um sistema jurídico completo que centraliza honorários, prazos, contratos e financeiro em um só lugar.",
+  ],
+  honorarios:"O ADVSIS permite controlar honorários com parcelas, baixa parcial, saldo e visão operacional completa. Você acompanha cada recebimento em tempo real! 💰",
+  prazos:"Nunca mais perca um prazo! O ADVSIS envia lembretes automáticos para audiências, contestações, petições e muito mais. ⏰",
+  seguranca:"Usamos JWT + RBAC + auditoria completa. Seus dados ficam protegidos com a mesma segurança de sistemas bancários. 🔒",
+  preco:"Temos planos a partir de R$ 97/mês para advogados autônomos. Quer uma demonstração gratuita para conhecer melhor? 📋",
+  demo:"Perfeito! Para agendar sua demonstração gratuita, entre em contato pelo WhatsApp (21) 98284-6871 ou clique no botão abaixo. Nossa equipe vai adorar te receber! 🎉",
+  financeiro:"O módulo financeiro inclui relatórios detalhados, fluxo de caixa, controle de inadimplência e muito mais. Tudo para você ter visão completa do seu escritório! 📊",
+  mobile:"Sim! O ADVSIS é 100% responsivo e funciona em qualquer dispositivo — computador, tablet ou celular. Acesse seu escritório de onde estiver! 📱",
+  suporte:"Oferecemos suporte especializado para todos os planos. Nossos especialistas estão prontos para ajudar durante toda a sua jornada! 🤝",
+};
+
+const QUICK=[
+  {label:"💰 Honorários",key:"honorarios"},
+  {label:"⏰ Prazos",key:"prazos"},
+  {label:"🔒 Segurança",key:"seguranca"},
+  {label:"💳 Preços",key:"preco"},
+  {label:"📱 Mobile",key:"mobile"},
+  {label:"🎯 Demo gratuita",key:"demo"},
+];
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chat-window').classList.toggle('open',chatOpen);
+  if(chatOpen){
+    document.getElementById('chat-badge').style.display='none';
+    if(!chatInitialized)initChat();
+  }
+}
+
+function initChat(){
+  chatInitialized=true;
+  addMessage("bot","Olá! Sou o assistente virtual do **ADVSIS** ⚖️\n\nEstou aqui para ajudar com suas dúvidas sobre nosso sistema jurídico inteligente.\n\nComo posso te ajudar hoje?");
+  renderQuickReplies();
+}
+
+function addMessage(type,text){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className=`msg ${type}`;
+  const now=new Date();
+  const time=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const bubble=document.createElement('div');
+  bubble.className='msg-bubble';
+  bubble.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  const timeEl=document.createElement('div');
+  timeEl.className='msg-time';
+  timeEl.textContent=time;
+  div.appendChild(bubble);
+  div.appendChild(timeEl);
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='msg bot';div.id='typing-msg';
+  const bubble=document.createElement('div');
+  bubble.className='typing-indicator';
+  bubble.innerHTML='<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+  div.appendChild(bubble);
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function removeTyping(){
+  const t=document.getElementById('typing-msg');
+  if(t)t.remove();
+}
+
+function renderQuickReplies(){
+  const qr=document.getElementById('quick-replies');
+  qr.innerHTML='';
+  QUICK.forEach(q=>{
+    const btn=document.createElement('button');
+    btn.className='quick-reply-btn';
+    btn.textContent=q.label;
+    btn.onclick=()=>sendQuick(q.key,q.label);
+    qr.appendChild(btn);
+  });
+}
+
+function sendQuick(key,label){
+  addMessage('user',label);
+  document.getElementById('quick-replies').innerHTML='';
+  const resp=RESPONSES[key]||RESPONSES.default[0];
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    addMessage('bot',resp);
+    if(key==='demo'){
+      setTimeout(()=>{
+        const msgs=document.getElementById('chat-messages');
+        const div=document.createElement('div');
+        div.className='msg bot';
+        div.innerHTML=`<div class="msg-bubble"><a href="https://wa.me/5521982846871" target="_blank" style="display:inline-block;background:linear-gradient(135deg,#C9A84C,#E8C96B);color:#0A0C10;font-weight:700;padding:10px 20px;border-radius:40px;text-decoration:none;font-size:.78rem;letter-spacing:.08em;">📱 Falar pelo WhatsApp</a></div>`;
+        msgs.appendChild(div);
+        msgs.scrollTop=msgs.scrollHeight;
+      },600);
+    }
+    setTimeout(renderQuickReplies,800);
+  },1200);
+}
+
+function sendMessage(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text)return;
+  addMessage('user',text);
+  input.value='';
+  document.getElementById('quick-replies').innerHTML='';
+  const lower=text.toLowerCase();
+  let resp;
+  if(lower.includes('honorar')||lower.includes('pagament'))resp=RESPONSES.honorarios;
+  else if(lower.includes('prazo')||lower.includes('audiên')||lower.includes('agenda'))resp=RESPONSES.prazos;
+  else if(lower.includes('segur')||lower.includes('dado')||lower.includes('privac'))resp=RESPONSES.seguranca;
+  else if(lower.includes('preço')||lower.includes('valor')||lower.includes('custo')||lower.includes('plano'))resp=RESPONSES.preco;
+  else if(lower.includes('demo')||lower.includes('test')||lower.includes('gratis')||lower.includes('gratuita'))resp=RESPONSES.demo;
+  else if(lower.includes('financ')||lower.includes('relatór')||lower.includes('caixa'))resp=RESPONSES.financeiro;
+  else if(lower.includes('mobil')||lower.includes('celular')||lower.includes('tablet'))resp=RESPONSES.mobile;
+  else if(lower.includes('suport')||lower.includes('ajuda')||lower.includes('atendim'))resp=RESPONSES.suporte;
+  else{
+    const idx=Math.floor(Math.random()*RESPONSES.default.length);
+    resp=RESPONSES.default[idx];
+  }
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    addMessage('bot',resp);
+    setTimeout(renderQuickReplies,800);
+  },1000+Math.random()*600);
+}
+
+document.getElementById('chat-send').addEventListener('click',sendMessage);
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage();});
+
+setTimeout(()=>{
+  if(!chatOpen){toggleChat();}
+},4000);
+</script>
+</body>
+</html>
